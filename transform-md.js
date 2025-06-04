@@ -16,15 +16,14 @@ const showFailedOnly = (onlyFailed) => (file) => file.filter((part, partIndex) =
   return onlyFailed ? hasFailedTests : !hasFailedTests;
 });
 
-const skipFirstAndWrapInDetails = (file) => file.map((part, partIndex, allParts) => {
+const skipFirstAndWrapInDetails = (file) => [...file.map((part, partIndex) => {
   if (partIndex === 0) return part;
   const hasFailedTests = checkIfHasFailedTests(part);
   const lines = part.split('\n');
   lines[0] = `<details${hasFailedTests ? ' open' : ''}><summary>${lines[0].trim()}</summary>`;
-  const terminator = allParts.length - 1 === partIndex ? '</details></details>' : '</details>';
-  lines.push(terminator);
+  lines.push('</details>');
   return lines.join('\n');
-});
+}), '</details>'];
 
 const transformFirst = (filesList) => (file, fileIndex) => file.map((part, partIndex, allParts) => {
   if (partIndex !== 0) return part;
