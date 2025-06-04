@@ -10,6 +10,12 @@ const checkIfHasFailedTests = (part) => {
   return count > 1;
 }
 
+const showFailedOnly = (onlyFailed) => (file) => file.filter((part, partIndex) => {
+  if (partIndex === 0) return true;
+  const hasFailedTests = checkIfHasFailedTests(part);
+  return onlyFailed ? hasFailedTests : !hasFailedTests;
+});
+
 const skipFirstAndWrapInDetails = (file) => file.map((part, partIndex, allParts) => {
   if (partIndex === 0) return part;
   const hasFailedTests = checkIfHasFailedTests(part);
@@ -26,7 +32,7 @@ const transformFirst = (filesList) => (file, fileIndex) => file.map((part, partI
   const projectName = findPackageJson(path.dirname(filename));
   const hasFailedTests = allParts.slice(1).find(part => checkIfHasFailedTests(part)) !== undefined;
   const lines = part.split('\n');
-  lines[0] = `<details${hasFailedTests ? ' open' : ''}><summary>${hasFailedTests ? '❌&nbsp;' : '✅&nbsp;'}${projectName}</summary>`;
+  lines[0] = `<details${hasFailedTests ? ' open' : ''}><summary>${hasFailedTests ? '❌&nbsp;' : '✅&nbsp;'}${projectName}</summary>\n\n`;
   return lines.join('\n');
 });
 
@@ -48,8 +54,8 @@ const findPackageJson = (startPath, level = 3) => {
   return findPackageJson(parentPath, level - 1);
 };
 
-module.exports = async (filenames) => {
+module.exports = async (filenames, onlyFailed) => {
   const files = await Promise.all(filenames.map(filename => fs.readFile(filename, 'utf8')));
-  const transformed = files.map(breakToParts).map(transformFirst(filenames)).map(skipFirstAndWrapInDetails).map(collectParts).join('\n\n');
+  const transformed = files.map(breakToParts).map(transformFirst(filenames)).map(showFailedOnly(onlyFailed)).map(skipFirstAndWrapInDetails).map(collectParts).join('\n\n');
   return transformed;
 };

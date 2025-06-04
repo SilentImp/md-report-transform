@@ -13,8 +13,9 @@ program
   .option('-n, --name [name]', 'Name of the file with markdown test report.', 'test-report.md')
   .option('-f, --folders [folders...]', 'Folder to search', ['.'])
   .option('-l, --level [level]', 'Search depth level', 3)
+  .option('-o, --only-failed', 'Show only failed suits', false)
   .option('-v, --verbose', 'Output additiona information', false)
-  .action(async (dir, { name, folders, level, verbose: isVerbose }) => {
+  .action(async (dir, { name, folders, level, verbose: isVerbose, onlyFailed }) => {
 
     if (isVerbose) {
       console.log({
@@ -23,12 +24,13 @@ program
         folders,
         level,
         verbose: isVerbose,
+        onlyFailed,
       })
     }
     
     try {
       const files = await searchSubFolders(name, dir, folders, level, isVerbose);
-      const report = await transformMd(files);
+      const report = await transformMd(files, onlyFailed);
       process.stdout.write(`# Test Report
 
 ${report}\n`);
