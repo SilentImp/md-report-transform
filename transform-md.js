@@ -26,7 +26,7 @@ const transformFirst = (filesList) => (file, fileIndex) => file.map((part, partI
   const projectName = findPackageJson(path.dirname(filename));
   const hasFailedTests = allParts.slice(1).find(part => checkIfHasFailedTests(part)) !== undefined;
   const lines = part.split('\n');
-  lines[0] = `<details${hasFailedTests ? ' open' : ''}><summary>${projectName}</summary>`;
+  lines[0] = `<details${hasFailedTests ? ' open' : ''}><summary>${hasFailedTests ? '❌&nbsp;' : '✅&nbsp;'}${projectName}</summary>`;
   return lines.join('\n');
 });
 
