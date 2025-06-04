@@ -11,8 +11,8 @@ program
   .version(packageJSON.version)
   .argument('[dir]', 'Root folder to search.', '.')
   .option('-n, --name [name]', 'Name of the file with markdown test report.', 'test-report.md')
-  .option('-f, --folders [folders...]', 'Folder to search', [])
-  .option('-l, --level [level]', 'Search depth level', 2)
+  .option('-f, --folders [folders...]', 'Folder to search', ['.'])
+  .option('-l, --level [level]', 'Search depth level', 3)
   .option('-v, --verbose', 'Output additiona information', false)
   .action(async (dir, { name, folders, level, verbose: isVerbose }) => {
 
@@ -29,7 +29,9 @@ program
     try {
       const files = await searchSubFolders(name, dir, folders, level, isVerbose);
       const report = await transformMd(files);
-      process.stdout.write(`${report}\n`);
+      process.stdout.write(`# Test Report
+
+${report}\n`);
     } catch (error) {
       program.error(error.stderr ? error.stderr.toString() : error.message);
     }
